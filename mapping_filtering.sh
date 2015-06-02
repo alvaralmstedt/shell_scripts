@@ -1,24 +1,48 @@
 #!/bin/bash
+
+# Usage: mapping_filter.sh <reference>.fasta <file1>.fastq <file2>.fastq
+# Dependencies: bowtie2, samtools, seqtk
+
+echo "Name of outputdirectory: "
+read OUTDIR
+
 echo `hostname`
 date
 
-#DBNAME='mapping_18052015'
-#READPATH='/data01/alvar/mapping_11th_may_2015/pulled/non_mappers'
-#MPPATH="/data02/tomas/skeletonema_MP"
-#PEPATH="/data01/alvar/mapping_4th_may_2015/150_300_650_pair"
+BNAME=`date +%C%y_%m_%d`
+SAM_FULL=mapping_full_$DBNAME.sam
+SAM_MAPPER=mappers_$DBNAME.sam
+SAM_NON_MAPPER=non_mappers_$DBNAME.sam
+LIST_MAPPER=mappers_$DBNAME.lst
+LIST_NON_MAPPER=non_mappers_$DBNAME.lst
 
-echo "Running bowtie2 mapping"
+echo "Creating bowtie2 database"
 
-bowtie2 -x mapping_01062015 -1 /home/alvar/mapping_25th_may_2015/pulled/non_mappers/P1354_Fw_quad_non_mappers.fastq -2 /home/alvar/mapping_25th_may_2015/pulled/non_mappers/P1354_Rev_quad_non_mappers.fastq -S results/P1354_mapping_01062015.sam &
+# Creates a bowtie2 database and names it by date and a random number
+if [ ! -e $DBNAME ];
+do
+	bowtie2-build -f $1 $DBNAME 
+done
 
-bowtie2 -x mapping_01062015 -1 /home/alvar/mapping_25th_may_2015/pulled/non_mappers/P1355_Fw_quad_non_mappers.fastq -2 /home/alvar/mapping_25th_may_2015/pulled/non_mappers/P1355_Rev_quad_non_mappers.fastq -S results/P1355_mapping_01062015.sam &
+# Starts bowtie2 mapping
+bowtie2 -x $DBNAME -1 $1 -2 $2 -S $OUTDIR/$SAM_FULL 
 
-bowtie2 -x mapping_01062015 -1 /home/alvar/mapping_25th_may_2015/pulled/non_mappers/150Pair_Fw_quad_non_mappers.fastq -2 /home/alvar/mapping_25th_may_2015/pulled/non_mappers/150Pair_Rev_quad_non_mappers.fastq -S results/150Pair_mapping_01062015.sam &
+# Splits the sam files into mappers and non_mappers
+samtools view -S F4 $OUTDIR/$SAM_FULL > $OUTDIR/$SAM_MAPPER &
+samtools view -S f4 $OUTDIR/$SAM_FULL > $OUTDIR/$SAM_NON_MAPEPR &
+wait
 
-bowtie2 -x mapping_01062015 -1 /home/alvar/mapping_25th_may_2015/pulled/non_mappers/300Pair_Fw_quad_non_mappers.fastq -2 /home/alvar/mapping_25th_may_2015/pulled/non_mappers/300Pair_Rev_quad_non_mappers.fastq -S results/300Pair_mapping_01062015.sam &
+#Makes lists containing the headers of the mapping and non_mapping reads
+cut -f1 $OUTDIR/$SAM_MAPPER | sort | uniq > $OUTDIR/$LIST_MAPPER &
+cut -f1 $OUTDIR/$SAM_NON_MAPPER | sort | uniq > $OUTDIR/$LIST_NON_MAPPER &
 
-bowtie2 -x mapping_01062015 -1 /home/alvar/mapping_25th_may_2015/pulled/non_mappers/650Pair_Fw_quad_non_mappers.fastq -2 /home/alvar/mapping_25th_may_2015/pulled/non_mappers/650Pair_Rev_quad_non_mappers.fastq -S results/650Pair_mapping_01062015.sam &
+seqtk subseq $1 $OUTIDR/$MAPPER_LIST > $OUTIDR/mappers_$1 &
+seqtk subseq $2 $OUTIDR/$MAPPER_LIST > $OUTIDR/mappers_$2 &
+wait
 
+seqtk subseq $1 $OUTIDR/$NON_MAPPER_LIST > $OUTIDR/non_mappers_$1 &
+seqtk subseq $2 $OUTIDR/$NON_MAPPER_LIST > $OUTIDR/non_mappers_$2 &
+wait
 
 date
 echo "Finished running bowtie2 mapping"
