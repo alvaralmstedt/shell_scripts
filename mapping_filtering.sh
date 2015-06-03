@@ -34,20 +34,20 @@ mkdir $OUTDIR
 bowtie2 -x $DBNAME -1 $2 -2 $3 -S $OUTDIR/$SAM_FULL 
 
 # Splits the sam files into mappers and non_mappers
-samtools view -S F4 $OUTDIR/$SAM_FULL > $OUTDIR/$SAM_MAPPER &
-samtools view -S f4 $OUTDIR/$SAM_FULL > $OUTDIR/$SAM_NON_MAPEPR &
+samtools view -S -F4 $OUTDIR/$SAM_FULL > $OUTDIR/$SAM_MAPPER &
+samtools view -S -f4 $OUTDIR/$SAM_FULL > $OUTDIR/$SAM_NON_MAPPER &
 wait
 
 #Makes lists containing the headers of the mapping and non_mapping reads
 cut -f1 $OUTDIR/$SAM_MAPPER | sort | uniq > $OUTDIR/$LIST_MAPPER &
 cut -f1 $OUTDIR/$SAM_NON_MAPPER | sort | uniq > $OUTDIR/$LIST_NON_MAPPER &
 
-seqtk subseq $1 $OUTIDR/$MAPPER_LIST > $OUTIDR/mappers_$2 &
-seqtk subseq $2 $OUTIDR/$MAPPER_LIST > $OUTIDR/mappers_$3 &
+seqtk subseq $1 $OUTDIR/$LIST_MAPPER > $OUTDIR/mappers_$2 &
+seqtk subseq $2 $OUTDIR/$LIST_MAPPER > $OUTDIR/mappers_$3 &
 wait
 
-seqtk subseq $1 $OUTIDR/$NON_MAPPER_LIST > $OUTIDR/non_mappers_$2 &
-seqtk subseq $2 $OUTIDR/$NON_MAPPER_LIST > $OUTIDR/non_mappers_$3 &
+seqtk subseq $1 $OUTDIR/$LIST_NON_MAPPER > $OUTDIR/non_mappers_$2 &
+seqtk subseq $2 $OUTDIR/$LIST_NON_MAPPER > $OUTDIR/non_mappers_$3 &
 wait
 
 date
