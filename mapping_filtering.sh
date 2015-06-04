@@ -35,6 +35,7 @@ mkdir $OUTDIR
 # Starts bowtie2 mapping
 echo "Running bowtie2 mapping..."
 bowtie2 -x $1 -1 $2 -2 $3 -S $OUTDIR/$SAM_FULL 
+wait
 
 # Splits the sam files into mappers and non_mappers
 echo "Separating sam files..."
@@ -43,7 +44,8 @@ samtools view -S -f4 $OUTDIR/$SAM_FULL > $OUTDIR/$SAM_NON_MAPPER &
 wait
 
 mkdir $OUTDIR/lists
-mkdir $OUTDIR/filtered_reads
+mkdir $OUTDIR/mapped_reads
+mkdir $OUTDIR/non_mapped_reads
 
 # Makes lists containing the headers of the mapping and non_mapping reads
 echo "Creating lists..."
@@ -53,17 +55,17 @@ wait
 
 # Pulling mapped reads from libraries
 echo "Fetching reads..."
-seqtk subseq $2 $OUTDIR/lists/"$OUTDIR"_$LIST_MAPPER > $OUTDIR/filtered_reads/"$OUTDIR"_"$DATE"_mappers_$2 &
-seqtk subseq $3 $OUTDIR/lists/"$OUTDIR"_$LIST_MAPPER > $OUTDIR/filtered_reads/"$OUTDIR"_"$DATE"_mappers_$3 &
+seqtk subseq $2 $OUTDIR/lists/"$OUTDIR"_$LIST_MAPPER > $OUTDIR/mapped_reads/"$OUTDIR"_"$DATE"_mappers_$2 &
+seqtk subseq $3 $OUTDIR/lists/"$OUTDIR"_$LIST_MAPPER > $OUTDIR/mapped_reads/"$OUTDIR"_"$DATE"_mappers_$3 &
 wait
 
 # Pulling non-mapped reads from libraries
-seqtk subseq $2 $OUTDIR/lists/"$OUTDIR"_$LIST_NON_MAPPER > $OUTDIR/filtered_reads/"$OUTDIR"_"$DATE"_non_mappers_$2 &
-seqtk subseq $3 $OUTDIR/lists/"$OUTDIR"_$LIST_NON_MAPPER > $OUTDIR/filtered_reads/"$OUTDIR"_"$DATE"_non_mappers_$3 &
+seqtk subseq $2 $OUTDIR/lists/"$OUTDIR"_$LIST_NON_MAPPER > $OUTDIR/non_mapped_reads/"$OUTDIR"_"$DATE"_non_mappers_$2 &
+seqtk subseq $3 $OUTDIR/lists/"$OUTDIR"_$LIST_NON_MAPPER > $OUTDIR/non_mapped_reads/"$OUTDIR"_"$DATE"_non_mappers_$3 &
 wait
 
 # Deletes intermediary files if desired
-if [ $DELETE = "y" ] || [ $DELETE = "Y" ]; then
+if [[ $DELETE = y* ]] || [[ $DELETE = Y* ]]; then
 	echo "Removing intermediary sam files..."
 	rm $OUTDIR/*.sam
 else
