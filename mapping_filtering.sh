@@ -3,10 +3,10 @@
 # Usage: mapping_filter.sh <reference>.fasta <file1>.fastq <file2>.fastq
 # Dependencies: bowtie2, samtools, seqtk
 
-echo "Pease input desired name of your analysis: "
+echo -n "Pease input desired name of your analysis: "
 read OUTDIR
 
-echo "Do you want the intermediary files to be deleted after completion?(y/n)"
+echo -n "Do you want the intermediary files to be deleted after completion?(y/n)"
 read DELETE
 
 echo `hostname`
