@@ -3,6 +3,17 @@
 # Usage: mapping_filter.sh <reference>.fasta <file1>.fastq <file2>.fastq
 # Dependencies: bowtie2, samtools, seqtk
 
+# Test if the correct number of input files are specified
+
+if [ "$2" == "" ]; then
+
+echo ""
+echo "Usage: mapping_filter.sh <reference>.fasta <file1>.fastq [<file2>.fastq]"
+echo ""
+echo "	A reference fasta file and one (for singlets)" 
+echo "	or two (paired end) fastq files are required."
+echo ""
+
 echo -n "Name of output directory: "
 read NAME
 
@@ -21,6 +32,7 @@ LIST_NON_MAPPER=non_mappers_$DATE.lst
 LIST_TRUE_NON_MAPPER=non_mapper.lst
 LIST_TRUE_MAPPER=mapper.lst
 OUTDIR="$NAME"_$DATE
+MAPPING_INFO=README_mapping.txt
 
 echo "Creating bowtie2 database..."
 # Creates a bowtie2 database and names it by date and a random number
@@ -37,7 +49,7 @@ mkdir $OUTDIR
 
 # Starts bowtie2 mapping
 echo "Running bowtie2 mapping..."
-bowtie2 -x $1 -1 $2 -2 $3 -S $OUTDIR/$SAM_FULL 
+bowtie2 -x $1 -1 $2 -2 $3 -S $OUTDIR/$SAM_FULL 2> $OUTDIR/$MAPPING_INFO
 wait
 
 # Splits the sam files into mappers and non_mappers
