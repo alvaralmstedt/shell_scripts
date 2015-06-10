@@ -7,18 +7,20 @@
 
 if [ "$2" == "" ]; then
 
-echo ""
-echo "Usage: mapping_filter.sh <reference>.fasta <file1>.fastq [<file2>.fastq]"
-echo ""
-echo "	A reference fasta file and one (for singlets)" 
-echo "	or two (paired end) fastq files are required."
-echo ""
+	echo ""
+	echo "Usage: mapping_filter.sh <reference>.fasta <file1>.fastq [<file2>.fastq]"
+	echo ""
+	echo "	A reference fasta file and one (for singlets)" 
+	echo "	or two (paired end) fastq files are required."
+	echo ""
+	exit 1;
+fi
 
-echo -n "Name of output directory: "
-read NAME
+	echo -n "Name of output directory: "
+	read NAME
 
-echo -n "Remove *.sam files after completion? (y/n): "
-read DELETE
+	echo -n "Remove *.sam files after completion? (y/n): "
+	read DELETE
 
 # echo `hostname`
 # date
