@@ -49,11 +49,11 @@ LIST_TRUE_MAPPER=mapper.lst
 OUTDIR="$NAME"_$DATE
 MAPPING_INFO=README_mapping.txt
 
-echo "[info] Creating bowtie2 database..."
 # Creates a bowtie2 database and names it by date and a random number
 
 files=$(ls "$1".?.bt2 2> /dev/null | wc -l)
 if [ "$files" = "0" ]; then
+	echo "[info] Creating bowtie2 database..."
 	bowtie2-build -f $1 $1
 	ckeckExit $? "bowtie2-build"
 else
