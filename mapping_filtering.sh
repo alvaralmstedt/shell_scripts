@@ -3,14 +3,14 @@
 # Usage: mapping_filter.sh <reference>.fasta <file1>.fastq <file2>.fastq
 # Dependencies: bowtie2, samtools, seqtk
 
-echo -n "Pease input desired name of your analysis: "
+echo -n "Name of output directory: "
 read NAME
 
-echo -n "Do you want the intermediary files to be deleted after completion?(y/n)"
+echo -n "Remove *.sam files after completion? (y/n): "
 read DELETE
 
-echo `hostname`
-date
+# echo `hostname`
+# date
 
 DATE=`date +%C%y_%m_%d`
 SAM_FULL=mapping_full_$DATE.sam
