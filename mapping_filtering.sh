@@ -32,13 +32,11 @@ err() {
 
 ckeckExit() {
     if [ "$1" == "0" ]; then
-        echo "..Done $2 `date`";
+        echo "[Done] $2 `date`";
     else
-        err "$2 returned non-0 exit code $1";
+        err "[Error] $2 returned non-0 exit code $1";
     fi
 }
-
-
 
 DATE=`date +%C%y_%m_%d`
 SAM_FULL=mapping_full_$DATE.sam
@@ -51,14 +49,14 @@ LIST_TRUE_MAPPER=mapper.lst
 OUTDIR="$NAME"_$DATE
 MAPPING_INFO=README_mapping.txt
 
-echo "Creating bowtie2 database..."
+echo "[info] Creating bowtie2 database..."
 # Creates a bowtie2 database and names it by date and a random number
-if [ ! -e $1.?.bt2 ]; then
+if [ ! -e "$1.?.bt2" ]; then
 
 	bowtie2-build -f $1 $1
 	ckeckExit $? "bowtie2-build"
 else
-	echo "Database aready exists, proceeding..." 
+	echo "[info] Database aready exists, proceeding..." 
 fi
 
 wait
@@ -66,13 +64,13 @@ wait
 mkdir $OUTDIR
 
 # Starts bowtie2 mapping
-echo "Running bowtie2 mapping..."
+echo "[info] Running bowtie2 mapping..."
 bowtie2 -x $1 -1 $2 -2 $3 -S $OUTDIR/$SAM_FULL 2> $OUTDIR/$MAPPING_INFO
 ckeckExit $? "bowtie2"
 wait
 
 # Splits the sam files into mappers and non_mappers
-echo "Separating sam files..."
+echo "[info] Separating sam files..."
 samtools view -S -F4 $OUTDIR/$SAM_FULL > $OUTDIR/$SAM_MAPPER &
     ckeckExit $? "samtools"
 samtools view -S -f4 $OUTDIR/$SAM_FULL > $OUTDIR/$SAM_NON_MAPPER &
@@ -85,7 +83,7 @@ mkdir $OUTDIR/non_mapped_reads
 mkdir $OUTDIR/half_mapped_reads
 
 # Makes lists containing the headers of the mapping and non_mapping reads
-echo "Creating lists..."
+echo "[info] Creating lists..."
 cut -f1 $OUTDIR/$SAM_MAPPER | sort | uniq > $OUTDIR/lists/"$NAME"_$LIST_MAPPER &
     ckeckExit $? "cut"
 cut -f1 $OUTDIR/$SAM_NON_MAPPER | sort | uniq > $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER &
@@ -119,7 +117,7 @@ rm $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER
 wait
 
 # Pulling mapped reads from libraries
-echo "Fetching reads..."
+echo "[info] Fetching reads..."
 # seqtk subseq $2 $OUTDIR/lists/"$NAME"_$LIST_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$2 &
 # seqtk subseq $3 $OUTDIR/lists/"$NAME"_$LIST_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$3 &
 # wait
@@ -150,11 +148,10 @@ wait
 
 # Deletes intermediary files if desired
 if [[ $DELETE = y* ]] || [[ $DELETE = Y* ]]; then
-	echo "Removing intermediary sam files..."
+	echo "[info] Removing intermediary sam files..."
 	rm $OUTDIR/*.sam
-else
-	echo "Keeping sam files"
+    else
+	echo "[info] Keeping sam files"
 fi
 
-date
-echo "Finished running bowtie2 mapping and filtering"
+echo "Finished running bowtie2 mapping and filtering $(date)"
