@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Usage: mapping_filter.sh <reference>.fasta <file1>.fastq <file2>.fastq
 # Dependencies: bowtie2, samtools, seqtk
 
 # Test if the correct number of input files are specified
