@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Dependencies: bowtie2, samtools, seqtk
+# Some code borrowed from https://wikis.utexas.edu/display/bioiteam/Example+BWA+alignment+script
 
 # Test if the correct number of input files are specified
 
@@ -21,8 +22,23 @@ fi
 	echo -n "Remove *.sam files after completion? (y/n): "
 	read DELETE
 
-# echo `hostname`
-# date
+# Print some informative error meassages
+err() {
+    echo "$1 exited unexpectedly";
+    exit 1;
+}
+
+# Function for checking the exit code of a child process
+
+ckeckExit() {
+    if [ "$1" == "0" ]; then
+        echo "..Done $2 `date`";
+    else
+        err "$2 returned non-0 exit code $1";
+    fi
+}
+
+
 
 DATE=`date +%C%y_%m_%d`
 SAM_FULL=mapping_full_$DATE.sam
@@ -40,6 +56,7 @@ echo "Creating bowtie2 database..."
 if [ ! -e $1.?.bt2 ]; then
 
 	bowtie2-build -f $1 $1
+	ckeckExit $? "bowtie2-build"
 else
 	echo "Database aready exists, proceeding..." 
 fi
@@ -51,12 +68,15 @@ mkdir $OUTDIR
 # Starts bowtie2 mapping
 echo "Running bowtie2 mapping..."
 bowtie2 -x $1 -1 $2 -2 $3 -S $OUTDIR/$SAM_FULL 2> $OUTDIR/$MAPPING_INFO
+ckeckExit $? "bowtie2"
 wait
 
 # Splits the sam files into mappers and non_mappers
 echo "Separating sam files..."
 samtools view -S -F4 $OUTDIR/$SAM_FULL > $OUTDIR/$SAM_MAPPER &
+    ckeckExit $? "samtools"
 samtools view -S -f4 $OUTDIR/$SAM_FULL > $OUTDIR/$SAM_NON_MAPPER &
+    ckeckExit $? "samtools"
 wait
 
 mkdir $OUTDIR/lists
@@ -67,22 +87,29 @@ mkdir $OUTDIR/half_mapped_reads
 # Makes lists containing the headers of the mapping and non_mapping reads
 echo "Creating lists..."
 cut -f1 $OUTDIR/$SAM_MAPPER | sort | uniq > $OUTDIR/lists/"$NAME"_$LIST_MAPPER &
+    ckeckExit $? "cut"
 cut -f1 $OUTDIR/$SAM_NON_MAPPER | sort | uniq > $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER &
+    ckeckExit $? "cut"
 wait
 
 diff $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER $OUTDIR/lists/"$NAME"_$LIST_MAPPER | grep "> " | sed "s/> //g" > $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER
+    ckeckExit $? "diff, grep or sed"
 wait
 
 diff $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER $OUTDIR/lists/"$NAME"_$LIST_MAPPER | grep "< " | sed "s/< //g" > $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER
+    ckeckExit $? "diff, grep or sed"
 wait
 
 touch $OUTDIR/lists/temp.lst
 
 cat $OUTDIR/lists/"$NAME"_$LIST_MAPPER > $OUTDIR/lists/temp.lst
+    ckeckExit $? "cat"
 cat $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER >> $OUTDIR/lists/temp.lst
+    ckeckExit $? "cat"
 wait
 
 sort $OUTDIR/lists/temp.lst | uniq -d > $OUTDIR/lists/"$NAME"_half_mappers.lst
+    ckeckExit $? "sort"
 wait
 
 # Comment the following three lines out if you want to double-check list numbers
@@ -98,7 +125,9 @@ echo "Fetching reads..."
 # wait
 
 seqtk subseq $2 $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"mappers_$2 &
+    ckeckExit $? "seqtk"
 seqtk subseq $3 $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"mappers_$3 &
+    ckeckExit $? "seqtk"
 wait
 
 # Pulling non-mapped reads from libraries
@@ -107,12 +136,16 @@ wait
 # wait
 
 seqtk subseq $2 $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"non_mappers_$2 &
+    ckeckExit $? "seqtk"
 seqtk subseq $3 $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"non_mappers_$3 &
+    ckeckExit $? "seqtk"
 wait
 
 # Pulling half_mapped reads from libraries
 seqtk subseq $2 $OUTDIR/lists/"$NAME"_half_mappers.lst > $OUTDIR/half_mapped_reads/"$NAME"half_mappers_$2 &
+    ckeckExit $? "seqtk"
 seqtk subseq $3 $OUTDIR/lists/"$NAME"_half_mappers.lst > $OUTDIR/half_mapped_reads/"$NAME"half_mappers_$3 &
+    ckeckExit $? "seqtk"
 wait
 
 # Deletes intermediary files if desired
