@@ -24,8 +24,9 @@ OUTDIR="$NAME"_$DATE
 
 echo "Creating bowtie2 database..."
 # Creates a bowtie2 database and names it by date and a random number
-if [ ! -e $1.?.bt2 ]; then
 
+files=$(ls "$1".?.bt2 2> /dev/null | wc -l)
+if [ "$files" = "0" ]; then
 	bowtie2-build -f $1 $1
 else
 	echo "Database aready exists, proceeding..." 
