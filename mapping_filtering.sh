@@ -37,6 +37,7 @@ else
 fi
 }
 
+# Assigns names to variables
 DATE=`date +%C%y_%m_%d`
 SAM_FULL=mapping_full_$DATE.sam
 SAM_MAPPER=mappers_$DATE.sam
@@ -55,7 +56,7 @@ if [ "$files" = "0" ]; then
 	bowtie2-build -f $1 $1
 	ckeckExit $? "bowtie2-build"
 else
-	echo "[info] Database aready exists, proceeding..." 
+	echo "[info] bowtie2 database aready exists, proceeding..." 
 fi
 wait
 
@@ -75,7 +76,7 @@ mkdir $OUTDIR
 	    ckeckExit $? "samtools"
 	wait
 
-# COMMENT
+# Creates directories for the lists and reads to go in
 	mkdir $OUTDIR/lists
 	mkdir $OUTDIR/mapped_reads
 	mkdir $OUTDIR/non_mapped_reads
@@ -89,27 +90,27 @@ mkdir $OUTDIR
 	    ckeckExit $? "cut"
 	wait
 
-# COMMENT
+# Removes half_mapper duplicates from the mapping reads
 	diff $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER $OUTDIR/lists/"$NAME"_$LIST_MAPPER | grep "> " | sed "s/> //g" > $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER
 	    ckeckExit $? "diff, grep or sed"
 	wait
 
-# COMMENT
+# Removes half_mapper duplicates from the non_mapping reads
 	diff $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER $OUTDIR/lists/"$NAME"_$LIST_MAPPER | grep "< " | sed "s/< //g" > $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER
 	    ckeckExit $? "diff, grep or sed"
 	wait
 
-# COMMENT
+# Creates temporary file for the lists to be concatenated in
 	touch $OUTDIR/lists/temp.lst
 
-# COMMENT
+# Redirects/appends mappers and non_mappers to the temp file
 	cat $OUTDIR/lists/"$NAME"_$LIST_MAPPER > $OUTDIR/lists/temp.lst
 	    ckeckExit $? "cat"
 	cat $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER >> $OUTDIR/lists/temp.lst
 	    ckeckExit $? "cat"
 	wait
 
-# COMMENT
+# Redirects only the duplicate lines to the half_mapper list
 	sort $OUTDIR/lists/temp.lst | uniq -d > $OUTDIR/lists/"$NAME"_half_mappers.lst
 	    ckeckExit $? "sort"
 	wait
@@ -121,14 +122,14 @@ mkdir $OUTDIR
 	wait
 
 # Pulling mapped reads from libraries
-	echo "[info] Fetching reads..."
+	echo "[info] Fetching reads..."
 # seqtk subseq $2 $OUTDIR/lists/"$NAME"_$LIST_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$2 &
 # seqtk subseq $3 $OUTDIR/lists/"$NAME"_$LIST_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$3 &
 # wait
 
-	seqtk subseq $2 $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"mappers_$2 &
+	seqtk subseq $2 $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$2 &
 	    ckeckExit $? "seqtk"
-	seqtk subseq $3 $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"mappers_$3 &
+	seqtk subseq $3 $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$3 &
 	    ckeckExit $? "seqtk"
 	wait
 
@@ -137,21 +138,21 @@ mkdir $OUTDIR
 # seqtk subseq $3 $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mappers_$3 &
 # wait
 
-# COMMENT
-	seqtk subseq $2 $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"non_mappers_$2 &
+# Pulling non_mapped reads from libraries
+	seqtk subseq $2 $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mappers_$2 &
 	    ckeckExit $? "seqtk"
-	seqtk subseq $3 $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"non_mappers_$3 &
+	seqtk subseq $3 $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mappers_$3 &
 	    ckeckExit $? "seqtk"
 	wait
 
 # Pulling half_mapped reads from libraries
-	seqtk subseq $2 $OUTDIR/lists/"$NAME"_half_mappers.lst > $OUTDIR/half_mapped_reads/"$NAME"half_mappers_$2 &
+	seqtk subseq $2 $OUTDIR/lists/"$NAME"_half_mappers.lst > $OUTDIR/half_mapped_reads/"$NAME"_half_mappers_$2 &
 	    ckeckExit $? "seqtk"
-	seqtk subseq $3 $OUTDIR/lists/"$NAME"_half_mappers.lst > $OUTDIR/half_mapped_reads/"$NAME"half_mappers_$3 &
+	seqtk subseq $3 $OUTDIR/lists/"$NAME"_half_mappers.lst > $OUTDIR/half_mapped_reads/"$NAME"_half_mappers_$3 &
 	    ckeckExit $? "seqtk"
 	wait
 
-# Deletes intermediary files if desired
+# Deletes intermediary *.sam files if desired
 if [[ $DELETE = y* ]] || [[ $DELETE = Y* ]]; then
 	echo "[info] Removing intermediary sam files..."
 	rm $OUTDIR/*.sam
