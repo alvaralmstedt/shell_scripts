@@ -8,7 +8,7 @@
 if [ "$2" == "" ]; then
 
 	echo ""
-	echo "Usage: mapping_filter.sh <reference>.fasta <file1>.fastq [<file2>.fastq]"
+	echo "Usage: $0 <reference>.fasta <file1>.fastq [<file2>.fastq]"
 	echo ""
 	echo "	A reference fasta file and one (for singlets)" 
 	echo "	or two (paired end) fastq files are required."
