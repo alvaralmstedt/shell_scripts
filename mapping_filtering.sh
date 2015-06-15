@@ -10,9 +10,14 @@ NAME=0
 FORWARD=0
 REVERSE=0
 UNPAIRED=0
+CPU=1
 
 HELP="""
 	Made by: Alvar Almstedt & Mats Töpel
+	
+	If there is a problem, contact alvar.almstedt@gmail.com
+
+Flags:
 
 	-d	:	Database to be used for mapping to with bowtie2*
 	-u	:	Unpaired read library**
@@ -21,13 +26,14 @@ HELP="""
 	-n	:	User specified analysis Name*
 	-k	:	Keep intermediary *.sam files, else deleted after analysis
 	-h	:	Help (what you are reading now)
+	-p	:	Number of processors bowtie2 will use (default: 1)
 
 *: Mandatory options
 **: Either -1 and -2 for paired libraries or -u for unpaired. One of the two options are mandatory.
 
 """
 
-while getopts :d:u:1:2:n:kh opt; do
+while getopts :d:u:1:2:n:khp: opt; do
   case $opt in
 	d)
 		echo "-d (database) was input as $OPTARG" >&2
@@ -56,6 +62,10 @@ while getopts :d:u:1:2:n:kh opt; do
 	h)
 		echo "$HELP"
 		exit 1
+	;;
+	p)
+		echo "-p number of cores was input as $OPTARG" >&2
+		CPU=$OPTARG
 	;;
 	\?)
 		echo "Invalid option: -$OPTARG" >&2
@@ -220,7 +230,7 @@ fi
 if [ $FORWARD != 0 ] || [ $REVERSE != 0 ] ; then
 	seqtk subseq $FORWARD $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$FORWARD &
 	    ckeckExit $? "seqtk"
-	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$REVERSE &
+	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$REVERSE &
 	    ckeckExit $? "seqtk"
 	wait
 
