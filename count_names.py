@@ -13,5 +13,5 @@ with infile:
 		else:
 			counts[line] = 1
 
-for name in counts:
+for name in sorted(counts, key=counts.get, reverse=True):
 	print name, counts[name]
