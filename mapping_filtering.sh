@@ -26,14 +26,14 @@ Flags:
 	-n	:	User specified analysis Name*
 	-k	:	Keep intermediary *.sam files, else deleted after analysis
 	-h	:	Help (what you are reading now)
-	-p	:	Number of processors bowtie2 will use (default: 1)
+	-t	:	Number of threads bowtie2 will use (default: 1)
 
 *: Mandatory options
 **: Either -1 and -2 for paired libraries or -u for unpaired. One of the two options are mandatory.
 
 """
 
-while getopts :d:u:1:2:n:khp: opt; do
+while getopts :d:u:1:2:n:kht: opt; do
   case $opt in
 	d)
 		echo "-d (database) was input as $OPTARG" >&2
@@ -63,8 +63,8 @@ while getopts :d:u:1:2:n:khp: opt; do
 		echo "$HELP"
 		exit 1
 	;;
-	p)
-		echo "-p number of cores was input as $OPTARG" >&2
+	t)
+		echo "-t number of cores was input as $OPTARG" >&2
 		CPU=$OPTARG
 	;;
 	\?)
@@ -90,27 +90,7 @@ if [ $FORWARD = 0 ] || [ $REVERSE = 0 ] && [ $UNPAIRED = 0 ] ; then
 	exit 1
 fi
 
-# bowtie2 [options]* -x <bt2-idx> {-1 <m1> -2 <m2> | -U <r>} [-S <sam>]
 
-# shift $((OPTIND-1))
-
-
-#if [ "$2" == "" ]; then
-#
-#	echo ""
-#	echo "Usage: $0 <reference>.fasta <file1>.fastq [<file2>.fastq]"
-#	echo ""
-#	echo "	A reference fasta file and one (for singlets)" 
-#	echo "	or two (paired end) fastq files are required."
-#	echo ""
-#	exit 1;
-#fi
-
-#	echo -n "Name of output directory: "
-#	read NAME
-
-#	echo -n "Remove *.sam files after completion? (y/n): "
-#	read DELETE
 
 # Print some informative error meassages
 err() {
@@ -138,7 +118,7 @@ LIST_TRUE_NON_MAPPER=non_mapper.lst
 LIST_TRUE_MAPPER=mapper.lst
 OUTDIR="$NAME"_$DATE
 MAPPING_INFO=README_mapping.txt
-CPU=16
+
 
 # Creates a bowtie2 database and names it by date and a random number
 files=$(ls "$DATABASE".?.bt2 2> /dev/null | wc -l)
@@ -156,12 +136,12 @@ mkdir $OUTDIR
 # Starts bowtie2 mapping
 if [ $FORWARD != 0 ] || [ $REVERSE != 0 ] ; then
 	echo "[info] Running bowtie2 mapping on paired libraries..."
-	bowtie2 -x $DATABASE -1 $FORWARD -2 $REVERSE -S $OUTDIR/$SAM_FULL 2> $OUTDIR/$MAPPING_INFO
+	bowtie2 -x $DATABASE -1 $FORWARD -2 $REVERSE -S $OUTDIR/$SAM_FULL -p $CPU 2> $OUTDIR/$MAPPING_INFO
 	ckeckExit $? "bowtie2"
 	wait
 else
 	echo "[info] Running bowtie2 mapping on unpaired library..."
-	bowtie2 -x $DATABASE -U $UNPAIRED -S $OUTDIR/$SAM_FULL 2> $OUTDIR/$MAPPING_INFO
+	bowtie2 -x $DATABASE -U $UNPAIRED -S $OUTDIR/$SAM_FULL -p $CPU 2> $OUTDIR/$MAPPING_INFO
 	ckeckExit $? "bowtie2"
 	wait
 fi
