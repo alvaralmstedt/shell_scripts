@@ -47,6 +47,7 @@ LIST_TRUE_NON_MAPPER=non_mapper.lst
 LIST_TRUE_MAPPER=mapper.lst
 OUTDIR="$NAME"_$DATE
 MAPPING_INFO=README_mapping.txt
+CPU=16
 
 # Creates a bowtie2 database and names it by date and a random number
 files=$(ls "$1".?.bt2 2> /dev/null | wc -l)
@@ -63,7 +64,7 @@ mkdir $OUTDIR
 
 # Starts bowtie2 mapping
 	echo "[info] Running bowtie2 mapping..."
-	bowtie2 -x $1 -1 $2 -2 $3 -S $OUTDIR/$SAM_FULL 2> $OUTDIR/$MAPPING_INFO
+	bowtie2 -p $CPU -x $1 -1 $2 -2 $3 -S $OUTDIR/$SAM_FULL 2> $OUTDIR/$MAPPING_INFO
 	ckeckExit $? "bowtie2"
 	wait
 
@@ -91,12 +92,12 @@ mkdir $OUTDIR
 
 # COMMENT
 	diff $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER $OUTDIR/lists/"$NAME"_$LIST_MAPPER | grep "> " | sed "s/> //g" > $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER
-	    ckeckExit $? "diff, grep or sed"
+	    ckeckExit $? "diff, grep and/or sed"
 	wait
 
 # COMMENT
 	diff $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER $OUTDIR/lists/"$NAME"_$LIST_MAPPER | grep "< " | sed "s/< //g" > $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER
-	    ckeckExit $? "diff, grep or sed"
+	    ckeckExit $? "diff, grep and/or sed"
 	wait
 
 # COMMENT
