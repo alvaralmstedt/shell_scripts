@@ -1,2 +1,2 @@
 # shell_scripts
-Miscellaneous shellscripts for doing various bioinformatic analyses.
+Miscellaneous shellscripts and python scripts for doing various bioinformatic analyses.
