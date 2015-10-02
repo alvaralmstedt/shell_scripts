@@ -63,40 +63,46 @@ wait
 mkdir completed
 echo $1
 sleep 5
-echo "Touch-loop:"
+
+seq_cutter.py t $CWD/completed $CWD/tabbed unitig_0
+
+seq_cutter.py h $CWD/completed $CWD/tabbed
+
+seq_cutter.py s $CWD/completed $CWD/tabbed
+#echo "Touch-loop:"
 # This loop creates the files with the correct species names
 # Does not work properly
-for header in $CWD/tabbed/$1
-do
-	echo "header: "$header
-	FILNAMN=$( ( head $header | cut -f1 -d'|' ) )
-	echo -n "FILNAMN: "
-	echo $FILNAMN
-	touch $CWD/completed/completed_${FILNAMN}
+#for header in $CWD/tabbed/$1
+#do
+#	echo "header: "$header
+#	FILNAMN=$( ( head $header | cut -f1 -d'|' ) )
+#	echo -n "FILNAMN: "
+#	echo $FILNAMN
+#	touch $CWD/completed/completed_${FILNAMN}
 #	cut -f1 -d'     ' header > $CWD/completed/completed_$header
-	sleep 1
-done
-sleep 5
-FINALFILES=$(cd completed && ls)
-set -- $FINALFILES
-INCREMENTER=1
-
+#	sleep 1
+#done
+#sleep 5
+#FINALFILES=$(cd completed && ls)
+#set -- $FINALFILES
+#INCREMENTER=1
+#
 # This loop pastes the species headers into the files
-echo "sequence paste loop"
-for tf in $TABBEDFILES
-do
-	echo -n "dollar 1 in haders paste loop: "
-	echo $1
-	echo -n "INCREMENTER: "
-	echo $INCREMENTER
-	cut -f1 -d'	' $CWD/tabbed/$tf >> $CWD/completed/completed_${"$INCREMENTER"}
+#echo "sequence paste loop"
+#for tf in $TABBEDFILES
+#do
+#	echo -n "dollar 1 in haders paste loop: "
+#	echo $1
+#	echo -n "INCREMENTER: "
+#	echo $INCREMENTER
+#	cut -f1 -d'	' $CWD/tabbed/$tf >> $CWD/completed/completed_${"$INCREMENTER"}
 #	This loop pastes the sequences into the result files	
-	for seq in $TABBEDFILES
-	do
-		cut -f2 -d'	' $CWD/tabbed/$seq >> $CWD/completed/completed_$($INCREMENTER)
-	done
-	INCREMENTER=$((INCREMENTER+1))
-	sleep 1
-done
+#	for seq in $TABBEDFILES
+#	do
+#		cut -f2 -d'	' $CWD/tabbed/$seq >> $CWD/completed/completed_$($INCREMENTER)
+#	done
+#	INCREMENTER=$((INCREMENTER+1))
+#	sleep 1
+#done
 sleep 5
 echo "done"	
