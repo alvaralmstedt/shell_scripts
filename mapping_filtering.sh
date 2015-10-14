@@ -118,7 +118,9 @@ LIST_TRUE_NON_MAPPER=non_mapper.lst
 LIST_TRUE_MAPPER=mapper.lst
 OUTDIR="$NAME"_$DATE
 MAPPING_INFO=README_mapping.txt
-
+FW_FILENAMEONLY="${FORWARD##*/}"
+REV_FILENAMEONLY="${REVERSE##*/}"
+UNP_FILENAMEONLY="${UNPAIRED##*/}"
 
 # Creates a bowtie2 database and names it by date and a random number
 files=$(ls "$DATABASE".?.bt2 2> /dev/null | wc -l)
@@ -209,30 +211,30 @@ fi
 
 
 if [ $FORWARD != 0 ] || [ $REVERSE != 0 ] ; then
-	seqtk subseq $FORWARD $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$FORWARD &
+	seqtk subseq $FORWARD $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$FW_FILENAMEONLY &
 	    ckeckExit $? "seqtk"
-	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$REVERSE &
+	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$REV_FILENAMEONLY &
 	    ckeckExit $? "seqtk"
 	wait
 
 # Pulling non_mapped reads from libraries
-	seqtk subseq $FORWARD $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mappers_$FORWARD &
+	seqtk subseq $FORWARD $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mappers_$FW_FILENAMEONLY &
 	    ckeckExit $? "seqtk"
-	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mappers_$REVERSE &
+	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mappers_$REV_FILENAMEONLY &
 	    ckeckExit $? "seqtk"
 	wait
 
 # Pulling half_mapped reads from libraries
-	seqtk subseq $FORWARD $OUTDIR/lists/"$NAME"_half_mappers.lst > $OUTDIR/half_mapped_reads/"$NAME"_half_mappers_$FORWARD &
+	seqtk subseq $FORWARD $OUTDIR/lists/"$NAME"_half_mappers.lst > $OUTDIR/half_mapped_reads/"$NAME"_half_mappers_$FW_FILENAMEONLY &
 	    ckeckExit $? "seqtk"
-	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_half_mappers.lst > $OUTDIR/half_mapped_reads/"$NAME"_half_mappers_$REVERSE &
+	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_half_mappers.lst > $OUTDIR/half_mapped_reads/"$NAME"_half_mappers_$REV_FILENAMEONLY &
 	    ckeckExit $? "seqtk"
 	wait
 
 else
-	seqtk subseq $UNPAIRED $OUTDIR/lists/"$NAME"_$LIST_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$UNPAIRED &
+	seqtk subseq $UNPAIRED $OUTDIR/lists/"$NAME"_$LIST_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$UNP_FILENAMEONLY &
 	ckeckExit $? "seqtk"
-	seqtk subseq $UNPAIRED $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mappers_$UNPAIRED &
+	seqtk subseq $UNPAIRED $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mappers_$UNP_FILENAMEONLY &
 	ckeckExit $? "seqtk"
 	wait
 fi
