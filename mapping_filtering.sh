@@ -118,9 +118,11 @@ LIST_TRUE_NON_MAPPER=non_mapper.lst
 LIST_TRUE_MAPPER=mapper.lst
 OUTDIR="$NAME"_$DATE
 MAPPING_INFO=README_mapping.txt
+wait
 FW_FILENAMEONLY="${FORWARD##*/}"
 REV_FILENAMEONLY="${REVERSE##*/}"
 UNP_FILENAMEONLY="${UNPAIRED##*/}"
+wait
 
 # Creates a bowtie2 database and names it by date and a random number
 files=$(ls "$DATABASE".?.bt2 2> /dev/null | wc -l)
