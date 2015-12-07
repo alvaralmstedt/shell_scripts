@@ -109,13 +109,13 @@ fi
 
 # Assigns names to variables
 DATE=`date +%C%y_%m_%d`
-SAM_FULL=mapping_full_$DATE.sam
-SAM_MAPPER=mappers_$DATE.sam
-SAM_NON_MAPPER=non_mappers_$DATE.sam
-LIST_MAPPER=mappers_$DATE.lst
-LIST_NON_MAPPER=non_mappers_$DATE.lst
-LIST_TRUE_NON_MAPPER=non_mapper.lst
-LIST_TRUE_MAPPER=mapper.lst
+SAM_FULL=${NAME}_full_${DATE}.sam
+SAM_MAPPER=mapped_reads_${DATE}.sam
+SAM_NON_MAPPER=non_mapped_reads_${DATE}.sam
+LIST_MAPPER=mappers_${DATE}.lst
+LIST_NON_MAPPER=non_mapped_reads_${DATE}.lst
+LIST_TRUE_NON_MAPPER=non_mapped_reads.lst
+LIST_TRUE_MAPPER=mapped_reads.lst
 OUTDIR="$NAME"_$DATE
 MAPPING_INFO=README_mapping.txt
 wait
