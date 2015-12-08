@@ -99,7 +99,7 @@ err() {
 }
 
 # Function for checking the exit code of a child process
-ckeckExit() {
+checkExit() {
 if [ "$1" == "0" ]; then
 	echo "[Done] $2 `date`";
 else
@@ -129,7 +129,7 @@ files=$(ls "$DATABASE".?.bt2 2> /dev/null | wc -l)
 if [ "$files" = "0" ]; then
 	echo "[info] Creating bowtie2 database..."
 	bowtie2-build -f $DATABASE $DATABASE
-	ckeckExit $? "bowtie2-build"
+	checkExit $? "bowtie2-build"
 else
 	echo "[info] bowtie2 database aready exists, proceeding..." 
 fi
@@ -141,12 +141,12 @@ mkdir $OUTDIR
 if [ $FORWARD != 0 ] || [ $REVERSE != 0 ] ; then
 	echo "[info] Running bowtie2 mapping on paired libraries..."
 	bowtie2 -x $DATABASE -1 $FORWARD -2 $REVERSE -S $OUTDIR/$SAM_FULL -p $CPU 2> $OUTDIR/$MAPPING_INFO
-	ckeckExit $? "bowtie2"
+	checkExit $? "bowtie2"
 	wait
 else
 	echo "[info] Running bowtie2 mapping on unpaired library..."
 	bowtie2 -x $DATABASE -U $UNPAIRED -S $OUTDIR/$SAM_FULL -p $CPU 2> $OUTDIR/$MAPPING_INFO
-	ckeckExit $? "bowtie2"
+	checkExit $? "bowtie2"
 	wait
 fi
 
@@ -154,9 +154,9 @@ fi
 # Splits the sam files into mappers and non_mappers
 	echo "[info] Separating sam files..."
 	samtools view -S -F4 $OUTDIR/$SAM_FULL > $OUTDIR/$SAM_MAPPER &
-	    ckeckExit $? "samtools"
+	    checkExit $? "samtools"
 	samtools view -S -f4 $OUTDIR/$SAM_FULL > $OUTDIR/$SAM_NON_MAPPER &
-	    ckeckExit $? "samtools"
+	    checkExit $? "samtools"
 	wait
 
 # Creates directories for the lists and reads to go in
@@ -168,20 +168,20 @@ fi
 # Makes lists containing the headers of the mapping and non_mapping reads
 	echo "[info] Creating lists..."
 	cut -f1 $OUTDIR/$SAM_MAPPER | sort | uniq > $OUTDIR/lists/"$NAME"_$LIST_MAPPER &
-	    ckeckExit $? "cut"
+	    checkExit $? "cut"
 	cut -f1 $OUTDIR/$SAM_NON_MAPPER | sort | uniq > $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER &
-	    ckeckExit $? "cut"
+	    checkExit $? "cut"
 	wait
 
 if [ $FORWARD != 0 ] || [ $REVERSE != 0 ] ; then
 # Removes half_mapper duplicates from the mapping reads
 	diff $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER $OUTDIR/lists/"$NAME"_$LIST_MAPPER | grep "> " | sed "s/> //g" > $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER
-	    ckeckExit $? "diff, grep and/or sed"
+	    checkExit $? "diff, grep and/or sed"
 	wait
 
 # Removes half_mapper duplicates from the non_mapping reads
 	diff $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER $OUTDIR/lists/"$NAME"_$LIST_MAPPER | grep "< " | sed "s/< //g" > $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER
-	    ckeckExit $? "diff, grep and/or sed"
+	    checkExit $? "diff, grep and/or sed"
 	wait
 
 # Creates temporary file for the lists to be concatenated in
@@ -189,14 +189,14 @@ if [ $FORWARD != 0 ] || [ $REVERSE != 0 ] ; then
 
 # Redirects/appends mappers and non_mappers to the temp file
 	cat $OUTDIR/lists/"$NAME"_$LIST_MAPPER > $OUTDIR/lists/temp.lst
-	    ckeckExit $? "cat"
+	    checkExit $? "cat"
 	cat $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER >> $OUTDIR/lists/temp.lst
-	    ckeckExit $? "cat"
+	    checkExit $? "cat"
 	wait
 
 # Redirects only the duplicate lines to the half_mapper list
-	sort $OUTDIR/lists/temp.lst | uniq -d > $OUTDIR/lists/"$NAME"_half_mappers.lst
-	    ckeckExit $? "sort"
+	sort $OUTDIR/lists/temp.lst | uniq -d > $OUTDIR/lists/"$NAME"_half_mapped.lst
+	    checkExit $? "sort"
 	wait
 
 # Comment the following three lines out if you want to double-check list numbers
@@ -213,31 +213,31 @@ fi
 
 
 if [ $FORWARD != 0 ] || [ $REVERSE != 0 ] ; then
-	seqtk subseq $FORWARD $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$FW_FILENAMEONLY &
-	    ckeckExit $? "seqtk"
-	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$REV_FILENAMEONLY &
-	    ckeckExit $? "seqtk"
+	seqtk subseq $FORWARD $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mapped_$FW_FILENAMEONLY &
+	    checkExit $? "seqtk"
+	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_$LIST_TRUE_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mapped_$REV_FILENAMEONLY &
+	    checkExit $? "seqtk"
 	wait
 
 # Pulling non_mapped reads from libraries
-	seqtk subseq $FORWARD $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mappers_$FW_FILENAMEONLY &
-	    ckeckExit $? "seqtk"
-	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mappers_$REV_FILENAMEONLY &
-	    ckeckExit $? "seqtk"
+	seqtk subseq $FORWARD $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mapped_$FW_FILENAMEONLY &
+	    checkExit $? "seqtk"
+	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_$LIST_TRUE_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mapped_$REV_FILENAMEONLY &
+	    checkExit $? "seqtk"
 	wait
 
 # Pulling half_mapped reads from libraries
-	seqtk subseq $FORWARD $OUTDIR/lists/"$NAME"_half_mappers.lst > $OUTDIR/half_mapped_reads/"$NAME"_half_mappers_$FW_FILENAMEONLY &
-	    ckeckExit $? "seqtk"
-	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_half_mappers.lst > $OUTDIR/half_mapped_reads/"$NAME"_half_mappers_$REV_FILENAMEONLY &
-	    ckeckExit $? "seqtk"
+	seqtk subseq $FORWARD $OUTDIR/lists/"$NAME"_half_mapped.lst > $OUTDIR/half_mapped_reads/"$NAME"_half_mapped_$FW_FILENAMEONLY &
+	    checkExit $? "seqtk"
+	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_half_mapped.lst > $OUTDIR/half_mapped_reads/"$NAME"_half_mappers_$REV_FILENAMEONLY &
+	    checkExit $? "seqtk"
 	wait
 
 else
-	seqtk subseq $UNPAIRED $OUTDIR/lists/"$NAME"_$LIST_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mappers_$UNP_FILENAMEONLY &
-	ckeckExit $? "seqtk"
-	seqtk subseq $UNPAIRED $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mappers_$UNP_FILENAMEONLY &
-	ckeckExit $? "seqtk"
+	seqtk subseq $UNPAIRED $OUTDIR/lists/"$NAME"_$LIST_MAPPER > $OUTDIR/mapped_reads/"$NAME"_mapped_$UNP_FILENAMEONLY &
+	checkExit $? "seqtk"
+	seqtk subseq $UNPAIRED $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER > $OUTDIR/non_mapped_reads/"$NAME"_non_mapped_$UNP_FILENAMEONLY &
+	checkExit $? "seqtk"
 	wait
 fi
 
