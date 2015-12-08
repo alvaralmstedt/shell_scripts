@@ -229,7 +229,7 @@ if [ $FORWARD != 0 ] || [ $REVERSE != 0 ] ; then
 # Pulling half_mapped reads from libraries
 	seqtk subseq $FORWARD $OUTDIR/lists/"$NAME"_half_mapped.lst > $OUTDIR/half_mapped_reads/"$NAME"_half_mapped_$FW_FILENAMEONLY &
 	    checkExit $? "seqtk"
-	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_half_mapped.lst > $OUTDIR/half_mapped_reads/"$NAME"_half_mappers_$REV_FILENAMEONLY &
+	seqtk subseq $REVERSE $OUTDIR/lists/"$NAME"_half_mapped.lst > $OUTDIR/half_mapped_reads/"$NAME"_half_mapped_$REV_FILENAMEONLY &
 	    checkExit $? "seqtk"
 	wait
 
