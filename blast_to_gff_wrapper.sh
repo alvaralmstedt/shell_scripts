@@ -37,7 +37,7 @@ while getopts :q:d:o:p:t:lkh: opt; do
 		DATABASE=$OPTARG
 	;;
 	o)
-		echo "-o (output) was input as $OPTPARG" >&2
+		echo "-o (output) was input as $OPTARG" >&2
 		OUTPUT=$OPTARG
 	;;
 	p)
