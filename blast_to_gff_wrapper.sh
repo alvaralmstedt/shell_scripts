@@ -21,11 +21,12 @@ Options:
 			This will increase the result file size significantly.
 
 """
-OUTPUT=false
+OUTPUT=0
 LONG=false
 THREADS=1
+KEEP=false
 
-while getopts :q:d:p:t:lh: opt; do
+while getopts :q:d:o:p:t:lkh: opt; do
   case $opt in
 	q)
 		echo "-q (query) was input as $OPTARG" >&2
@@ -36,7 +37,7 @@ while getopts :q:d:p:t:lh: opt; do
 		DATABASE=$OPTARG
 	;;
 	o)
-		echo "-o (output) was input as $OTPARG" >&2
+		echo "-o (output) was input as $OPTPARG" >&2
 		OUTPUT=$OPTARG
 	;;
 	p)
@@ -51,6 +52,10 @@ while getopts :q:d:p:t:lh: opt; do
 		echo "-l (long) was triggered, long output triggered" >&2
 		LONG=true
 	;;
+    k)
+        echo "-k (keep) was triggered, blast output will be kept" >&2
+        KEEP=true
+    ;;
 	h)
 		echo "$HELP"
 		exit 1
@@ -63,7 +68,7 @@ while getopts :q:d:p:t:lh: opt; do
   esac
 done
 
-if [ $PROGRAM = "tblastn" ] || [ $PROGRAM = "TBLASTN" ] && [ $LONG = false] ; then
+if [ $PROGRAM = "tblastn" ] || [ $PROGRAM = "TBLASTN" ] && [ $LONG = false ] ; then
 	tblastn -query $QUERY -db $DATABASE -outfmt '6 sseqid sstart send' -out $OUTPUT -num_threads $THREADS
 
 elif [ $PROGRAM = tblastn ] || [ $PROGRAM = "TBLASTN" ] && [ $LONG = true ] ; then
@@ -78,10 +83,20 @@ else
 	echo "Program input incorrectly formatted. Please input tblastn/TBLASTN or blastx/BLASTX" 
 fi
 
-if [ $OUTPUT != false ] ; then
+if [ $OUTPUT != 0 ] ; then
 	blast_to_gff.py ${OUTPUT} ${OUTPUT}.gff
 else
-	echo "No blast output detected. Something went wrong"
+	echo "No blast output detected. Something went wrong."
+    echo "Your blast output looks like this: "
+    echo $OUTPUT
+    wait
+    rm $OUTPUT
+fi
+
+if [ $KEEP != true ] ; then
+    wait
+    rm $OUTPUT
 fi
 
 echo "Exited at: " ; date
+exit
