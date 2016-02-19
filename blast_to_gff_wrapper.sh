@@ -14,7 +14,7 @@ Options:
 	-p	:	Program. Currently only confirmed to work with tblastn 
 			but others should work too.
 	-t	:	Threads. Number of threads/processors you want the blast analysis to 
-			run on.
+			run on. (Default: 1)
 	-l	:	Long. Puts additional information like stop, start
 			and name of query, frame, bitscore; in the notes field
 			of the gff file. 
@@ -78,15 +78,22 @@ elif [ $PROGRAM = "blastx" ] || [ $PROGRAM = "BLASTX" ] && [ $LONG = false ] ; t
 	blastx -query $QUERY -db $DATABASE -outmft '6 sseqid sstart send' -out $OUTPUT -num_threads $THREADS
 
 elif [ $PROGRAM = "blastx" ] || [ $PROGRAM = "BLASTX" ] && [ $LONG = true ] ; then
-	blastx -query $QUERY -db $DATABASE -outmft '6 sseqid sstart send qseqid qlen qstart qend sframe bitscore' -out $OUTPUT -num_threads $THREADS
+        blastx -query $QUERY -db $DATABASE -outmft '6 sseqid sstart send qseqid qlen qstart qend sframe bitscore' -out $OUTPUT -num_threads $THREADS
+
+elif [ $PROGRAM = "blastn" ] || [ $PROGRAM = "BLASTN" ] && [ $LONG = false ] ; then
+        blastn -query $QUERY -db $DATABASE -outmft '6 sseqid sstart send' -out $OUTPUT -num_threads $THREADS
+
+elif [ $PROGRAM = "blastn" ] || [ $PROGRAM = "BLASTN" ] && [ $LONG = true ] ; then
+        blastn -query $QUERY -db $DATABASE -outmft '6 sseqid sstart send qseqid qlen qstart qend sframe bitscore' -out $OUTPUT -num_threads $THREADS
+
 else
-	echo "Program input incorrectly formatted. Please input tblastn/TBLASTN or blastx/BLASTX" 
+    echo "Program input incorrectly formatted. Please input blastn/BLASTN, tblastn/TBLASTN or blastx/BLASTX" 
 fi
 
 if [ $OUTPUT != 0 ] ; then
 	blast_to_gff.py ${OUTPUT} ${OUTPUT}.gff
 else
-	echo "No blast output detected. Something went wrong."
+    echo "No blast output detected. Something went wrong."
     echo "Your blast output looks like this: "
     echo $OUTPUT
     wait
