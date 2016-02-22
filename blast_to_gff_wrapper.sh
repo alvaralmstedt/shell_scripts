@@ -19,6 +19,8 @@ Options:
 			and name of query, frame, bitscore; in the notes field
 			of the gff file. 
 			This will increase the result file size significantly.
+    -k  :   Keep. This will keep the intermediate blast output. Otherwise
+            it will be deleted, only saving the gff.
 
 """
 OUTPUT=0
