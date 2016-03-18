@@ -24,6 +24,7 @@ Flags:
 	-1	:	Forward reads (paired)**
 	-2	:	Reverse reads (paired)**
 	-n	:	User specified analysis Name*
+    -T  :   User specified temporary directory for sort (use if sort crashes due to not enough space at default loc.)
 	-k	:	Keep intermediary *.sam files, else deleted after analysis
 	-h	:	Help (what you are reading now)
 	-t	:	Number of threads bowtie2 will use (default: 1)
@@ -33,7 +34,7 @@ Flags:
 
 """
 
-while getopts :d:u:1:2:n:kht: opt; do
+while getopts :d:u:1:2:n:T:kht: opt; do
   case $opt in
 	d)
 		echo "-d (database) was input as $OPTARG" >&2
@@ -58,7 +59,11 @@ while getopts :d:u:1:2:n:kht: opt; do
 	k)
 		echo "-k (keep) was triggered, sam files will be kept" >&2
 		DELETE=0
-	;;
+    ;;
+    T)
+        echo "-T (temp directory) was input as $OPTARG" >&2
+        TEMPDIR=$OPTARG    
+    ;;
 	h)
 		echo "$HELP"
 		exit 1
@@ -166,7 +171,15 @@ fi
 	mkdir $OUTDIR/half_mapped_reads
 
 # Makes lists containing the headers of the mapping and non_mapping reads
-	echo "[info] Creating lists..."
+if [ $TEMPDIR != 0 ] ; then
+    echo "[info] Creating lists..."
+	cut -f1 $OUTDIR/$SAM_MAPPER | sort -T $TEMPDIR | uniq > $OUTDIR/lists/"$NAME"_$LIST_MAPPER &
+	    checkExit $? "cut"
+	cut -f1 $OUTDIR/$SAM_NON_MAPPER | sort -T $TEMPDIR | uniq > $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER &
+	    checkExit $? "cut"
+	wait    
+else
+    echo "[info] Creating lists..."
 	cut -f1 $OUTDIR/$SAM_MAPPER | sort | uniq > $OUTDIR/lists/"$NAME"_$LIST_MAPPER &
 	    checkExit $? "cut"
 	cut -f1 $OUTDIR/$SAM_NON_MAPPER | sort | uniq > $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER &
