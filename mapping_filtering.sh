@@ -185,6 +185,7 @@ else
 	cut -f1 $OUTDIR/$SAM_NON_MAPPER | sort | uniq > $OUTDIR/lists/"$NAME"_$LIST_NON_MAPPER &
 	    checkExit $? "cut"
 	wait
+fi
 
 if [ $FORWARD != 0 ] || [ $REVERSE != 0 ] ; then
 # Removes half_mapper duplicates from the mapping reads
