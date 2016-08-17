@@ -5,7 +5,7 @@ SAMTOOLS=/apps/bio/apps/samtools/1.3.1/samtools
 SAM2PINDEL=/apps/CLC_ExternalApps/pindel/sam2pindel
 TMPOUT=/medstore/CLC_External_Tmp/pindel_tmp
 
-while getopts :d:s:f:i:h opt; do
+while getopts :b:s:f:o:h opt; do
   case $opt in
     b)
         echo "-b (bam) was input as $OPTARG" >&2
@@ -19,9 +19,9 @@ while getopts :d:s:f:i:h opt; do
         echo "-f (reference fasta) was input as $OPTARG" >&2
         FASTA=$OPTARG
     ;;
-    i)
-        echo "-i (config) was input as $OPTARG" >&2
-        CONFIG=$OPTARG
+    o)
+        echo "-o (output) was input as $OPTARG" >&2
+        OUTPUT=$OPTARG
     ;;
     h)
         echo "$HELP"
@@ -35,8 +35,14 @@ while getopts :d:s:f:i:h opt; do
   esac
 done
 
-$SAMTOOLS view $BAM | $SAM2PINDEL - ${TMPOUT}/output4pindel.txt $SIZE sampletag 0 
+BAMFILE=$(basename $BAM)
 
-$PINDEL -f $FASTA -i $CONFIG -c ALL -o ${TMPOUT}/${BAM}.pindelout -T 8
+$SAMTOOLS view $BAM | $SAM2PINDEL - ${TMPOUT}/${BAMFILE} $SIZE sampletag 0 
 
-rm ${TMPOUT}/output4pindel.txt
+PINPUT=${TMPOUT}/${BAMFILE}
+
+$PINDEL -f $FASTA -p $PINPUT -c ALL -o ${TMPOUT}/${BAM}.pindelout -T 8
+
+wait
+
+rm ${PINPUT}
