@@ -5,6 +5,7 @@ SAMTOOLS=/apps/bio/apps/samtools/1.3.1/samtools
 SAM2PINDEL=/apps/CLC_ExternalApps/pindel/sam2pindel
 TMPOUT=/medstore/CLC_External_Tmp/pindel_tmp
 
+
 while getopts :b:s:f:o:h opt; do
   case $opt in
     b)
@@ -41,7 +42,7 @@ $SAMTOOLS view $BAM | $SAM2PINDEL - ${TMPOUT}/${BAMFILE} $SIZE sampletag 0
 
 PINPUT=${TMPOUT}/${BAMFILE}
 
-$PINDEL -f $FASTA -p $PINPUT -c ALL -o ${TMPOUT}/${BAM}.pindelout -T 8
+$PINDEL -f $FASTA -p $PINPUT -c ALL -o $OUTPUT -T 8
 
 wait
 
