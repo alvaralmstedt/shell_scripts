@@ -77,16 +77,16 @@ elif [ $PROGRAM = tblastn ] || [ $PROGRAM = "TBLASTN" ] && [ $LONG = true ] ; th
 	tblastn -query $QUERY -db $DATABASE -outfmt '6 sseqid sstart send qseqid qlen qstart qend sframe bitscore' -out $OUTPUT -num_threads $THREADS
 
 elif [ $PROGRAM = "blastx" ] || [ $PROGRAM = "BLASTX" ] && [ $LONG = false ] ; then
-	blastx -query $QUERY -db $DATABASE -outmft '6 sseqid sstart send' -out $OUTPUT -num_threads $THREADS
+	blastx -query $QUERY -db $DATABASE -outfmt '6 sseqid sstart send' -out $OUTPUT -num_threads $THREADS
 
 elif [ $PROGRAM = "blastx" ] || [ $PROGRAM = "BLASTX" ] && [ $LONG = true ] ; then
-        blastx -query $QUERY -db $DATABASE -outmft '6 sseqid sstart send qseqid qlen qstart qend sframe bitscore' -out $OUTPUT -num_threads $THREADS
+        blastx -query $QUERY -db $DATABASE -outfmt '6 sseqid sstart send qseqid qlen qstart qend sframe bitscore' -out $OUTPUT -num_threads $THREADS
 
 elif [ $PROGRAM = "blastn" ] || [ $PROGRAM = "BLASTN" ] && [ $LONG = false ] ; then
-        blastn -query $QUERY -db $DATABASE -outmft '6 sseqid sstart send' -out $OUTPUT -num_threads $THREADS
+        blastn -query $QUERY -db $DATABASE -outfmt '6 sseqid sstart send' -out $OUTPUT -num_threads $THREADS
 
 elif [ $PROGRAM = "blastn" ] || [ $PROGRAM = "BLASTN" ] && [ $LONG = true ] ; then
-        blastn -query $QUERY -db $DATABASE -outmft '6 sseqid sstart send qseqid qlen qstart qend sframe bitscore' -out $OUTPUT -num_threads $THREADS
+        blastn -query $QUERY -db $DATABASE -outfmt '6 sseqid sstart send qseqid qlen qstart qend sframe bitscore' -out $OUTPUT -num_threads $THREADS
 
 else
     echo "Program input incorrectly formatted. Please input blastn/BLASTN, tblastn/TBLASTN or blastx/BLASTX" 
