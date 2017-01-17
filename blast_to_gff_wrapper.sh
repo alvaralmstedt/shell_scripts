@@ -1,6 +1,6 @@
-!#/bin/bash
+#!/bin/bash
 
-HELP ="""
+HELP="""
 Wrapper for the blast_to_gff.py script. Use this to ensure that your gff file makes sense.
 By: Alvar Almstedt (alvar.almstedt@gmail.com)
 
@@ -70,22 +70,22 @@ while getopts :q:d:o:p:t:lkh: opt; do
   esac
 done
 
-if [ $PROGRAM = "tblastn" ] || [ $PROGRAM = "TBLASTN" ] && [ $LONG = false ] ; then
+if [[ $PROGRAM = "tblastn" ]] || [[ $PROGRAM = "TBLASTN" ]] && [[ $LONG = false ]] ; then
 	tblastn -query $QUERY -db $DATABASE -outfmt '6 sseqid sstart send' -out $OUTPUT -num_threads $THREADS
 
-elif [ $PROGRAM = tblastn ] || [ $PROGRAM = "TBLASTN" ] && [ $LONG = true ] ; then
+elif [[ $PROGRAM = tblastn ]] || [[ $PROGRAM = "TBLASTN" ]] && [[ $LONG = true ]] ; then
 	tblastn -query $QUERY -db $DATABASE -outfmt '6 sseqid sstart send qseqid qlen qstart qend sframe bitscore' -out $OUTPUT -num_threads $THREADS
 
-elif [ $PROGRAM = "blastx" ] || [ $PROGRAM = "BLASTX" ] && [ $LONG = false ] ; then
+elif [[ $PROGRAM = "blastx" ]] || [[ $PROGRAM = "BLASTX" ]] && [[ $LONG = false ]] ; then
 	blastx -query $QUERY -db $DATABASE -outfmt '6 sseqid sstart send' -out $OUTPUT -num_threads $THREADS
 
-elif [ $PROGRAM = "blastx" ] || [ $PROGRAM = "BLASTX" ] && [ $LONG = true ] ; then
+elif [[ $PROGRAM = "blastx" ]] || [[ $PROGRAM = "BLASTX" ]] && [[ $LONG = true ]] ; then
         blastx -query $QUERY -db $DATABASE -outfmt '6 sseqid sstart send qseqid qlen qstart qend sframe bitscore' -out $OUTPUT -num_threads $THREADS
 
-elif [ $PROGRAM = "blastn" ] || [ $PROGRAM = "BLASTN" ] && [ $LONG = false ] ; then
+elif [[ $PROGRAM = "blastn" ]] || [[ $PROGRAM = "BLASTN" ]] && [[ $LONG = false ]] ; then
         blastn -query $QUERY -db $DATABASE -outfmt '6 sseqid sstart send' -out $OUTPUT -num_threads $THREADS
 
-elif [ $PROGRAM = "blastn" ] || [ $PROGRAM = "BLASTN" ] && [ $LONG = true ] ; then
+elif [[ $PROGRAM = "blastn" ]] || [[ $PROGRAM = "BLASTN" ]] && [[ $LONG = true ]] ; then
         blastn -query $QUERY -db $DATABASE -outfmt '6 sseqid sstart send qseqid qlen qstart qend sframe bitscore' -out $OUTPUT -num_threads $THREADS
 
 else
