@@ -1,6 +1,18 @@
 #!/bin/bash
 
 # Dependencies: bowtie2, samtools, seqtk
+
+function installed() {
+	if hash $1 2>/dev/null; then
+		:
+	else 
+		echo "[Err] $1 is not installed"
+	fi 
+}
+installed "bowtie2"
+installed "samtools" 
+installed "seqtk" 
+
 # Some code borrowed from https://wikis.utexas.edu/display/bioiteam/Example+BWA+alignment+script
 
 # Test if the correct number of input files are specified
