@@ -7,6 +7,7 @@ function installed() {
 		:
 	else 
 		echo "[Err] $1 is not installed"
+		exit
 	fi 
 }
 installed "bowtie2"
