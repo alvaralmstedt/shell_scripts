@@ -138,7 +138,7 @@ UNP_FILENAMEONLY="${UNPAIRED##*/}"
 wait
 
 # Creates a bowtie2 database and names it by date and a random number
-files=$(ls "$DATABASE".?.bt2 2> /dev/null | wc -l)
+files=$(ls "$DATABASE".?.bt2? 2> /dev/null | wc -l)
 if [ "$files" = "0" ]; then
 	echo "[info] Creating bowtie2 database..."
 	bowtie2-build -f $DATABASE $DATABASE
