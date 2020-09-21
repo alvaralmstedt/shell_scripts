@@ -1,6 +1,19 @@
 #!/bin/bash
 
 # Dependencies: bowtie2, samtools, seqtk
+
+function installed() {
+	if hash $1 2>/dev/null; then
+		:
+	else 
+		echo "[Err] $1 is not installed"
+		exit
+	fi 
+}
+installed "bowtie2"
+installed "samtools" 
+installed "seqtk" 
+
 # Some code borrowed from https://wikis.utexas.edu/display/bioiteam/Example+BWA+alignment+script
 
 # Test if the correct number of input files are specified
@@ -125,7 +138,7 @@ UNP_FILENAMEONLY="${UNPAIRED##*/}"
 wait
 
 # Creates a bowtie2 database and names it by date and a random number
-files=$(ls "$DATABASE".?.bt2 2> /dev/null | wc -l)
+files=$(ls "$DATABASE".?.bt2? 2> /dev/null | wc -l)
 if [ "$files" = "0" ]; then
 	echo "[info] Creating bowtie2 database..."
 	bowtie2-build -f $DATABASE $DATABASE
