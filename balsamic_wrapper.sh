@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -l
 set -eo pipefail
 shopt -s expand_aliases
 
@@ -15,7 +15,8 @@ USAGE: [ -a <T|TN> -c _condaenv -m <run|config|all> -t <panel|WGS> -r ]
   -a [required] T: Tumor only, TN: tumor normal
   -c Conda environment where BALSAMIC is installed. If not specified, it will use current environment.
   -m [required] config: only create config file, run: create config file and start analysis
-  -t [required] panel: target sequencing workflow (also includes WES), WGS: whole genome sequencing workflow
+  -t [required] twist_ffpe_exome Exomes for , GMS-ST: Twist GMS-ST panel, test_panel: target sequencing workflow (also includes WES), WGS: whole genome sequencing workflow
+  -o [required] outout path
   -d Analysis dir path, if it doesn't exist it will be created
   -r Flag. Set to submit jobs instead of running in dry mode
   -h Show this help and exit
@@ -41,11 +42,15 @@ while getopts ":a:m:c:t:d:r" opt; do
     t)
       _ngstype=${OPTARG}
       echo "workflow set to " "${OPTARG}"
-      [[ $_ngstype == 'panel' || $_ngstype == 'WGS' ]] || ( usage >&2; exit 1)
+      [[ $_ngstype == 'GMS-ST' || $_ngstype == 'twist_ffpe_exome' || $_ngstype == 'test_panel' || $_ngstype == 'WGS' ]] || ( usage >&2; exit 1)
       ;;
     d)
       _analysis_dir=${OPTARG}
       echo "analysis dir set to " "${OPTARG}"
+      ;;
+    o)
+      _out_dir=${OPTARG}
+      echo "output dir set to " "${OPTARG}"
       ;;
     r)
       rFlag=true;
@@ -57,8 +62,12 @@ done
 unset LD_PRELOAD
 unset DISPLAY
 
-if [[ ${_ngstype} == "panel" ]]; then
-  _panel_option='-p tests/test_data/references/panel/panel.bed'
+if [[ ${_ngstype} == "twist_ffpe_exome" ]]; then
+   _panel_option='-p /absolute/path/to/exome/bed/here'
+elif [[ ${_ngstype} == "GMS-ST" ]]; then
+   _panel_option='-p /absolute/path/to/panel/bed/here'
+elif [[ ${_ngstype} == "test_panel" ]]; then 
+   _panel_option='-p tests/test_data/references/panel/panel.bed'
 else
   _panel_option=''
 fi
